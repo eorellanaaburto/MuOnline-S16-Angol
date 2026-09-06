@@ -1190,7 +1190,7 @@ namespace MuEmu
             if (equip.TryGetValue(Equipament.Boots, out it))
             {
                 CharSet[15] |= (byte)((it.Number.Number & 0x1E0) >> 5); //1FF
-                CharSet[9] |= (byte)((it.Number.Number & 0x10) << 1);
+                CharSet[9] |= (byte)((it.Number.Number & 0x10) >> 1);
                 CharSet[5] |= (byte)((it.Number.Number & 0x0F) << 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x08 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x08 : 0x00);
@@ -1235,54 +1235,107 @@ namespace MuEmu
             if(equip.TryGetValue(Equipament.Wings, out it))
             {
                 Dictionary<int, byte[]> sub;
-                // Pre season X
-                sub = new Dictionary<int, byte[]>
+                if (Program.Season < ServerSeason.Season10Kor)
                 {
-                                  //[5], [9], [16]
-                    { 00, new byte[]{ 04, 0x01, 00 } }, //Wings of Fairy
-                    { 01, new byte[]{ 04, 0x02, 00 } }, //Wings of Angel
-                    { 02, new byte[]{ 04, 0x03, 00 } }, //Wings of Satan
-                    { 03, new byte[]{ 08, 0x01, 00 } }, //Wings of Spirit
-                    { 04, new byte[]{ 08, 0x02, 00 } }, //Wings of Soul
-                    { 05, new byte[]{ 08, 0x03, 00 } }, //Wings of Dragon
-                    { 06, new byte[]{ 08, 0x04, 00 } }, //Wings of Darkness
-                    { 30, new byte[]{ 08, 0x05, 00 } },//Cape of lord
-                    { 36, new byte[]{ 12, 0x01, 00 } },//Wing of Storm
-                    { 37, new byte[]{ 12, 0x02, 00 } },//Wing of Space Time
-                    { 38, new byte[]{ 12, 0x03, 00 } },//Wing of Illusion
-                    { 39, new byte[]{ 12, 0x04, 00 } },//Wings of Hurricane
-                    { 40, new byte[]{ 12, 0x05, 00 } },//Mantle of Monarch
-                    { 41, new byte[]{ 04, 0x04, 00 } },//Wing of Mistery
-                    { 42, new byte[]{ 12, 0x07, 00 } },//Wing of Despair
-                    { 43, new byte[]{ 12, 0x06, 00 } },//Wings of Violent Wind
-                    { 49, new byte[]{ 08, 0x07, 00 } },
-                    { 50, new byte[]{ 12, 0x07, 00 } },
-                    { 51, new byte[]{ 12, 0x00, 08 } },
-                    { 52, new byte[]{ 12, 0x00, 09 } },
-                    { 53, new byte[]{ 12, 0x00, 10 } },
-                    { 54, new byte[]{ 12, 0x00, 11 } },
-                    { 55, new byte[]{ 12, 0x00, 12 } },
-                    { 56, new byte[]{ 12, 0x00, 13 } },
-                    { 57, new byte[]{ 12, 0x00, 14 } },
-                    { 139, new byte[]{ 0x00, 0x02, 0x02 << 2 } },
-                    { 140, new byte[]{ 0x00, 0x02, 0x03 << 2 } },
-                    { 141, new byte[]{ 0x00, 0x02, 0x04 << 2 } },
-                    { 142, new byte[]{ 0x00, 0x02, 0x05 << 2 } },
-                    { 143, new byte[]{ 0x00, 0x02, 0x06 << 2 } },
-                    { 144, new byte[]{ 0x00, 0x02, 0x07 << 2 } },
-                    { 145, new byte[]{ 0x00, 0x02, 0x08 << 2 } },
-                    { 262, new byte[]{ 0x00, 0x03, 0x00 << 2 } },
-                    { 263, new byte[]{ 0x00, 0x03, 0x01 << 2 } },
-                    { 264, new byte[]{ 0x00, 0x03, 0x02 << 2 } },
-                    { 265, new byte[]{ 0x00, 0x03, 0x03 << 2 } },
-                    { 266, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
-                    { 267, new byte[]{ 0x00, 0x03, 0x14 << 2 } },
-                    { 268, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
-                    { 269, new byte[]{ 0x00, 0x03, 0x1C << 2 } },
-                    //{ 30, new byte[]{ 0x00, 0x03, 0x18 << 2 } },
-                    { 270, new byte[]{ 0x00, 0x04, 0x00 << 2 } },
-                    { 278, new byte[]{ 0x00, 0x04, 0x04 << 2 } },
-                };
+                    // Pre season X
+                    sub = new Dictionary<int, byte[]>
+                    {
+                                      //[5], [9], [16]
+                        { 00, new byte[]{ 04, 0x01, 00 } }, //Wings of Fairy
+                        { 01, new byte[]{ 04, 0x02, 00 } }, //Wings of Angel
+                        { 02, new byte[]{ 04, 0x03, 00 } }, //Wings of Satan
+                        { 03, new byte[]{ 08, 0x01, 00 } }, //Wings of Spirit
+                        { 04, new byte[]{ 08, 0x02, 00 } }, //Wings of Soul
+                        { 05, new byte[]{ 08, 0x03, 00 } }, //Wings of Dragon
+                        { 06, new byte[]{ 08, 0x04, 00 } }, //Wings of Darkness
+                        { 30, new byte[]{ 08, 0x05, 00 } },//Cape of lord
+                        { 36, new byte[]{ 12, 0x01, 00 } },//Wing of Storm
+                        { 37, new byte[]{ 12, 0x02, 00 } },//Wing of Space Time
+                        { 38, new byte[]{ 12, 0x03, 00 } },//Wing of Illusion
+                        { 39, new byte[]{ 12, 0x04, 00 } },//Wings of Hurricane
+                        { 40, new byte[]{ 12, 0x05, 00 } },//Mantle of Monarch
+                        { 41, new byte[]{ 04, 0x04, 00 } },//Wing of Mistery
+                        { 42, new byte[]{ 12, 0x07, 00 } },//Wing of Despair
+                        { 43, new byte[]{ 12, 0x06, 00 } },//Wings of Violent Wind
+                        { 49, new byte[]{ 08, 0x07, 00 } },
+                        { 50, new byte[]{ 12, 0x07, 00 } },
+                        { 51, new byte[]{ 12, 0x00, 08 } },
+                        { 52, new byte[]{ 12, 0x00, 09 } },
+                        { 53, new byte[]{ 12, 0x00, 10 } },
+                        { 54, new byte[]{ 12, 0x00, 11 } },
+                        { 55, new byte[]{ 12, 0x00, 12 } },
+                        { 56, new byte[]{ 12, 0x00, 13 } },
+                        { 57, new byte[]{ 12, 0x00, 14 } },
+                        { 139, new byte[]{ 0x00, 0x02, 0x02 << 2 } },
+                        { 140, new byte[]{ 0x00, 0x02, 0x03 << 2 } },
+                        { 141, new byte[]{ 0x00, 0x02, 0x04 << 2 } },
+                        { 142, new byte[]{ 0x00, 0x02, 0x05 << 2 } },
+                        { 143, new byte[]{ 0x00, 0x02, 0x06 << 2 } },
+                        { 144, new byte[]{ 0x00, 0x02, 0x07 << 2 } },
+                        { 145, new byte[]{ 0x00, 0x02, 0x08 << 2 } },
+                        { 262, new byte[]{ 0x00, 0x03, 0x00 << 2 } },
+                        { 263, new byte[]{ 0x00, 0x03, 0x01 << 2 } },
+                        { 264, new byte[]{ 0x00, 0x03, 0x02 << 2 } },
+                        { 265, new byte[]{ 0x00, 0x03, 0x03 << 2 } },
+                        { 266, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
+                        { 267, new byte[]{ 0x00, 0x03, 0x14 << 2 } },
+                        { 268, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
+                        { 269, new byte[]{ 0x00, 0x03, 0x1C << 2 } },
+                        //{ 30, new byte[]{ 0x00, 0x03, 0x18 << 2 } },
+                        { 270, new byte[]{ 0x00, 0x04, 0x00 << 2 } },
+                        { 278, new byte[]{ 0x00, 0x04, 0x04 << 2 } },
+                    };
+                }
+                else
+                {
+                    sub = new Dictionary<int, byte[]>
+                    {
+                                      //[5], [9], [16]
+                        { 00, new byte[]{ 0, 0, 04 } }, //Wings of Fairy
+                        { 01, new byte[]{ 0, 0, 08 } }, //Wings of Angel
+                        { 02, new byte[]{ 0, 0, 12 } }, //Wings of Satan
+                        { 03, new byte[]{ 0, 0, 16 } }, //Wings of Spirit
+                        { 04, new byte[]{ 0, 0, 20 } }, //Wings of Soul
+                        { 05, new byte[]{ 0, 0, 24 } }, //Wings of Dragon
+                        { 06, new byte[]{ 0, 0, 28 } }, //Wings of Darkness
+                        { 30, new byte[]{ 0, 3, 24 } },//Cape of lord
+                        { 36, new byte[]{ 0, 1, 00 } },//Wing of Storm
+                        { 37, new byte[]{ 0, 1, 04 } },//Wing of Space Time
+                        { 38, new byte[]{ 0, 1, 08 } },//Wing of Illusion
+                        { 39, new byte[]{ 0, 1, 12 } },//Wings of Hurricane
+                        { 40, new byte[]{ 0, 1, 16 } },//Mantle of Monarch
+                        { 41, new byte[]{ 0, 1, 20 } },//Wing of Mistery
+                        { 42, new byte[]{ 0, 1, 24 } },//Wing of Despair
+                        { 43, new byte[]{ 0, 1, 28 } },//Wings of Violent Wind
+                        { 49, new byte[]{ 0, 2, 00 } },
+                        { 50, new byte[]{ 0, 2, 04 } },
+                        { 51, new byte[]{ 12, 0x00, 08 } },
+                        { 52, new byte[]{ 12, 0x00, 09 } },
+                        { 53, new byte[]{ 12, 0x00, 10 } },
+                        { 54, new byte[]{ 12, 0x00, 11 } },
+                        { 55, new byte[]{ 12, 0x00, 12 } },
+                        { 56, new byte[]{ 12, 0x00, 13 } },
+                        { 57, new byte[]{ 12, 0x00, 14 } },
+                        { 139, new byte[]{ 0x00, 0x02, 0x02 << 2 } },
+                        { 140, new byte[]{ 0x00, 0x02, 0x03 << 2 } },
+                        { 141, new byte[]{ 0x00, 0x02, 0x04 << 2 } },
+                        { 142, new byte[]{ 0x00, 0x02, 0x05 << 2 } },
+                        { 143, new byte[]{ 0x00, 0x02, 0x06 << 2 } },
+                        { 144, new byte[]{ 0x00, 0x02, 0x07 << 2 } },
+                        { 145, new byte[]{ 0x00, 0x02, 0x08 << 2 } },
+                        { 262, new byte[]{ 0x00, 0x03, 0x00 << 2 } },
+                        { 263, new byte[]{ 0x00, 0x03, 0x01 << 2 } },
+                        { 264, new byte[]{ 0x00, 0x03, 0x02 << 2 } },
+                        { 265, new byte[]{ 0x00, 0x03, 0x03 << 2 } },
+                        { 266, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
+                        { 267, new byte[]{ 0x00, 0x03, 0x14 << 2 } },
+                        { 268, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
+                        { 269, new byte[]{ 0x00, 0x03, 0x1C << 2 } },
+                        //{ 30, new byte[]{ 0x00, 0x03, 0x18 << 2 } },
+                        { 270, new byte[]{ 0x00, 0x04, 0x00 << 2 } },
+                        { 278, new byte[]{ 0x00, 0x04, 0x04 << 2 } },
+                    };
+                }
 
                 var info = sub[it.Number.Index];
                 CharSet[5] |= info[0];

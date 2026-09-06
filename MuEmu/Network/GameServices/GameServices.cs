@@ -1183,7 +1183,7 @@ namespace MuEmu.Network.GameServices
                 return;
             }
 
-            log.Information("Warp request to {0}", gate.Name);
+            log.Information("Warp request to {1}:{0}", gate.Name, message.MoveNumber);
             var @char = session.Player.Character;
 
             if (gate.ReqLevel > @char.Level)

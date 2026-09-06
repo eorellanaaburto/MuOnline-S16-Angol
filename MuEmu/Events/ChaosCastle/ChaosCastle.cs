@@ -84,7 +84,7 @@ namespace MuEmu.Events.ChaosCastle
                 plr.Health -= (float)dmg;
                 plr.Player.Session.SendAsync(msg).Wait();
 
-                var attack = VersionSelector.CreateMessage<SAttackResult>((ushort)plr.Player.Session.ID, (ushort)dmg, DamageType.Regular, 0);
+                var attack = VersionSelector.CreateMessage<SAttackResult>((ushort)plr.Player.Session.ID, Util.Util.flatStat(dmg), DamageType.Regular, 0);
                 plr.Player.Session.SendAsync(attack).Wait();
                 plr.Player.SendV2Message(msg);
             }

@@ -951,14 +951,14 @@ namespace MuEmu
                 CommandTotal,
                 Experience,
                 NextExperience,
-                (ushort)Health,
-                (ushort)_hpMax,
-                (ushort)Mana,
-                (ushort)_mpMax,
-                (ushort)Shield,
-                (ushort)MaxShield,
-                (ushort)Stamina,
-                (ushort)_bpMax,
+                Util.Util.flatStat(Health),
+                Util.Util.flatStat(MaxHealth),
+                Util.Util.flatStat(Mana),
+                Util.Util.flatStat(MaxMana),
+                Util.Util.flatStat(Shield),
+                Util.Util.flatStat(MaxShield),
+                Util.Util.flatStat(Stamina),
+                Util.Util.flatStat(MaxStamina),
                 (byte)PKLevel,
                 AddPoints,
                 MaxAddPoints,
@@ -1009,24 +1009,22 @@ namespace MuEmu
         public async void HPorSDChanged(RefillInfo info)
         {
             Party?.LifeUpdate();
-
-            await Player.Session.SendAsync(VersionSelector.CreateMessage<SHeatlUpdate>(info, (ushort)_hp, (ushort)_sd, false));
+            await Player.Session.SendAsync(VersionSelector.CreateMessage<SHeatlUpdate>(info, Util.Util.flatStat(_hp), Util.Util.flatStat(_sd), false));
         }
         private async void HPorSDMaxChanged()
         {
             Party?.LifeUpdate();
-
-            await Player.Session.SendAsync(VersionSelector.CreateMessage<SHeatlUpdate>(RefillInfo.MaxChanged, (ushort)MaxHealth, (ushort)MaxShield, false));
+            await Player.Session.SendAsync(VersionSelector.CreateMessage<SHeatlUpdate>(RefillInfo.MaxChanged, Util.Util.flatStat(MaxHealth), Util.Util.flatStat(MaxShield), false));
         }
         private async void MPorBPChanged(RefillInfo info)
         {
             Party?.LifeUpdate();
-            await Player.Session.SendAsync(new SManaUpdate(info, (ushort)_mp, (ushort)_bp));
+            await Player.Session.SendAsync(new SManaUpdate(info, Util.Util.flatStat(_mp), Util.Util.flatStat(_bp)));
         }
         private async void MPorBPMaxChanged()
         {
             Party?.LifeUpdate();
-            await Player.Session.SendAsync(new SManaUpdate(RefillInfo.MaxChanged, (ushort)MaxMana, (ushort)MaxStamina));
+            await Player.Session.SendAsync(new SManaUpdate(RefillInfo.MaxChanged, Util.Util.flatStat(MaxMana), Util.Util.flatStat(MaxStamina)));
         }
         private async void OnLevelUp()
         {
@@ -1428,7 +1426,17 @@ namespace MuEmu
                 State = ObjectState.Regen;
                 _position = Map.GetRespawn();
                 CharacterRegen?.Invoke(this, new EventArgs());
-                var regen = VersionSelector.CreateMessage<SCharRegen>(MapID, (byte)_position.X, (byte)_position.Y, (byte)1, (ushort)Health, (ushort)Mana, (ushort)Shield, (ushort)Stamina, (uint)Experience, (ulong)Money);
+                var regen = VersionSelector.CreateMessage<SCharRegen>(
+                    MapID, 
+                    (byte)_position.X, 
+                    (byte)_position.Y, 
+                    (byte)1, 
+                    Util.Util.flatStat(Health), 
+                    Util.Util.flatStat(Mana), 
+                    Util.Util.flatStat(Shield), 
+                    Util.Util.flatStat(Stamina), 
+                    (uint)Experience, 
+                    (ulong)Money);
                 Player.Session.SendAsync(regen).Wait();
             }
         }
@@ -1546,16 +1554,28 @@ namespace MuEmu
         public int GetDefense(int attack)
         {
             var _base = Defense;
-            var dmgAbsorb = 0.0f + Inventory.WingDmgAbsorb;
+            var dmgAbsorbRate = 0.0f + Inventory.WingDmgAbsorb;
             var guardian = Inventory.Get(Equipament.Pet)?.Number ?? ItemNumber.Invalid;
 
             // Guardian Angel
             if(guardian == (ItemNumber)6656)
             {
-                dmgAbsorb += 0.12f;
+                dmgAbsorbRate += 0.12f;
             }
 
-            return (int)(_base + (attack* dmgAbsorb));
+            var dmgReduce = attack * dmgAbsorbRate;
+            var manaShield = Spells.BuffList.FirstOrDefault(x => x.State == SkillStates.SoulBarrier);
+            if(manaShield != null)
+            {
+                if(manaShield.Source != null) manaShield.Source.Mana -= dmgReduce*manaShield.manaSourceDecreaseRate;
+            }
+            var defense = Spells.BuffList.FirstOrDefault(x => x.State == SkillStates.Defense);
+            if(defense != null)
+            {
+                if (defense.Source != null) defense.Source.Mana -= manaShield.manaSourceDecrease;
+            }
+
+            return (int)(_base + dmgReduce);
         }
         public int Attack(Character target, out DamageType type)
         {
@@ -1758,12 +1778,18 @@ namespace MuEmu
             Health -= healthDamage;
             _deadlyDmg = (int)healthDamage;
 
-            message = VersionSelector.CreateMessage<SAttackResult>((ushort)Player.Session.ID, (ushort)healthDamage, type, (ushort)sdDamage);
+            message = VersionSelector.CreateMessage<SAttackResult>((ushort)Player.Session.ID, Util.Util.flatStat(healthDamage), type, Util.Util.flatStat(sdDamage));
 
             var reflex = Inventory.Reflect + Spells.BuffList.Sum(x => x.DamageDeflection);
             var dmgReflect = reflex * dmg;
             if (dmgReflect>0)
             {
+                var dmgReflex = Spells.BuffList.FirstOrDefault(x => x.State == SkillStates.SkillDamageDeflection);
+                if(dmgReflex != null)
+                {
+                    var sourceMana = dmg * dmgReflex.manaSourceDecreaseRate;
+                    if(dmgReflex.Source != null)dmgReflex.Source.Mana -= sourceMana;
+                }
                 if (sourceSession != null)
                 {
                     await sourceSession.Player.Character.GetAttacked(Player.ID, 0, 0, (int)dmgReflect, DamageType.Reflect, Spell.None, 0);

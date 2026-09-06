@@ -185,12 +185,12 @@ namespace MuEmu
             }
         }
         public DateTime ExpireTime { get; set; } = DateTime.Now;
-        public uint DurationTime
+        public long DurationTime
         {
             get
             {
-                var ts = ExpireTime - CreationTime;
-                return (uint)ts.TotalSeconds;
+                var ts = (ExpireTime > CreationTime)? ExpireTime - CreationTime : TimeSpan.FromSeconds(0);
+                return (long)ts.TotalSeconds;
             }
         }
         public byte OptionExe { get; set; }
@@ -1157,12 +1157,12 @@ namespace MuEmu
             _db.OptionExe = OptionExe;
             _db.HarmonyOption = Harmony;
             _db.SocketOptions = string.Join(",", _slots.Select(x => x.ToString()));
-            _db.Durability = Durability;
+            _db.Durability = Math.Max(Durability, (byte)0);
             _db.PJewels = string.Join(",", PentagramJewels.Select(x => x.ToString()));
             _db.PetLevel = PetLevel;
             _db.PetEXP = PetEXP;
             _db.SetOption = SetOption;
-            _db.DurationTime = DurationTime;
+            _db.DurationTime = Math.Max(DurationTime,0);
 
             var str = $"[A{_db.AccountId}->{_vid}:{_slot}]Item Saved:{ToString()}";
             log.Information(str+" {0}", State);

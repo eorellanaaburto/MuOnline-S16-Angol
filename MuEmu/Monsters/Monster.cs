@@ -240,14 +240,12 @@ namespace MuEmu.Monsters
                 Life -= dmg + eDmg;
             }
 
-            var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
-            DeadlyDmg = dmgSend;
             plr.Character.HuntingRecord.AttackPVM(dmg);
             plr.Character.HuntingRecord.ElementalAttackPVM(eDmg);
 
             if (State != ObjectState.Dying)
             {
-                var attack = VersionSelector.CreateMessage<SAttackResult>(Index, dmgSend, type, (ushort)0);
+                var attack = VersionSelector.CreateMessage<SAttackResult>(Index, DeadlyDmg = Util.Util.flatStat(dmg), type, (ushort)0);
                 await plr.Session.SendAsync(attack);
             }
         }
@@ -262,14 +260,12 @@ namespace MuEmu.Monsters
             else
                 DamageSum.Add(plr, dmg);
 
-            var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
-            DeadlyDmg = dmgSend;
             Killer = plr;
             Life -= dmg;
 
             if (State != ObjectState.Dying)
             {
-                object message = VersionSelector.CreateMessage<SAttackResult>(Index, dmgSend, type, (ushort)0);
+                object message = VersionSelector.CreateMessage<SAttackResult>(Index, DeadlyDmg = Util.Util.flatStat(dmg), type, (ushort)0);
                 SubSystem.Instance.AddDelayedMessage(plr, TimeSpan.FromMilliseconds(100), message);
             }
         }

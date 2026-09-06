@@ -421,6 +421,11 @@ namespace MuEmu
                 group = 1,
                 ItemInfo = Array.Empty<byte>()
             };
+            if(source != null)
+            {
+                source.CharacterDie -= SourceDie;
+                source.CharacterDie += SourceDie;
+            }
             switch (effect)
             {
                 case SkillStates.ShadowPhantom:
@@ -430,11 +435,12 @@ namespace MuEmu
                     buff.DefenseAdd = @char.Level / 5 + 50;
                     break;
                 case SkillStates.SoulBarrier:
-                    buff.DefenseAddRate = (10 + source.AgilityTotal / 50 + source.EnergyTotal / 200)/100.0f;
-                    source.CharacterDie += SourceDie;
+                    buff.DefenseAddRate = MathF.Min((10 + source.AgilityTotal / 50 + source.EnergyTotal / 200)/100.0f,1.0f);
+                    buff.manaSourceDecreaseRate = buff.DefenseAddRate;
                     break;
                 case SkillStates.Defense:
                     buff.DefenseAdd = source.EnergyTotal / 8;
+                    buff.manaSourceDecrease = buff.DefenseAdd;
                     break;
                 case SkillStates.Attack:
                     buff.AttackAdd = source.EnergyTotal / 7;
@@ -442,8 +448,6 @@ namespace MuEmu
                 case SkillStates.SwellLife:
                     buff.LifeAdd = 12 + source.EnergyTotal / 10 + source.VitalityTotal / 100;
                     Character.MaxHealth += buff.LifeAdd;
-                    source.CharacterDie -= SourceDie;
-                    source.CharacterDie += SourceDie;
                     break;
                 case SkillStates.HAttackPower:
                     buff.AttackAdd = 25;
@@ -463,9 +467,8 @@ namespace MuEmu
                     buff.PoisonDamage = 12 + (source?.EnergyTotal??0) / 10;
                     break;
                 case SkillStates.SkillDamageDeflection:
-                    buff.DamageDeflection = (30 + (source.EnergyTotal / 42))/100.0f;
-                    source.CharacterDie -= SourceDie;
-                    source.CharacterDie += SourceDie;
+                    buff.DamageDeflection = MathF.Min((30 + (source.EnergyTotal / 42))/100.0f,1.0f);
+                    buff.manaSourceDecreaseRate = buff.DamageDeflection;
                     break;
             }
 
