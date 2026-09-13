@@ -3596,15 +3596,22 @@ namespace MU.Network.Game
     [WZContract()]
     public class SRuudBuy : IGameMessage
     {
-        public byte Result { get; set; }
+        [WZMember(0)] public byte Result { get; set; }
     }
 
     [WZContract()]
     public class SRuudSend : IGameMessage
     {
-        public uint Ruud { get; set; }
-        public uint AddRuud { get; set; }
-        public byte Add { get; set; }
+        [WZMember(0)] public uint Ruud { get; set; }
+        [WZMember(1)] public uint AddRuud { get; set; }
+        [WZMember(2)] public byte Add { get; set; }
+    }
+
+    [WZContract()]
+    public class SPetTrainerMix1 : IGameMessage
+    {
+        [WZMember(0)] public byte Type { get; set; }
+        [WZMember(1)] public byte Result { get; set; }
     }
 }
 

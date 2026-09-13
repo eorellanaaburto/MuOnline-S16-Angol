@@ -504,6 +504,9 @@ namespace MU.Network
         Ruudbuy = 0xF0D0,
         RuudOpenBox = 0xF1D0,
         RuudSend = 0xF1D0,
+
+        PetTrainerMix1 = 0x104C,
+        PetTrainerMix2 = 0x114C,
     }
 
     public enum GensOpCode : ushort

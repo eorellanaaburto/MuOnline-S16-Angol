@@ -435,9 +435,10 @@ namespace MuEmu.Monsters
                     Point newPoint;
                     do {
                         newPoint = new Point(Program.RandomProvider(maxX, minX), Program.RandomProvider(maxY, minY));
-                        if(!Map.ContainsAny(newPoint.X, newPoint.Y, _cantGo))
+                        if(!Map.ContainsAny(newPoint.X, newPoint.Y, _cantGo) && newPoint != Position)
                         {
                             TPosition = newPoint;
+
                             return;
                         }
                     } while (i++ < 10);
@@ -623,18 +624,17 @@ namespace MuEmu.Monsters
                 Zen *= Program.Zen;
 
                 pair.Key.Character.Experience += (long)EXP;
-                switch (Program.Season)
+                if(Program.Season >= ServerSeason.Season9Eng)
                 {
-                    case ServerSeason.Season9Eng:
-                        pair.Key.Session
-                            .SendAsync(new SKillPlayerEXT(Index, (int)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0))
-                            .Wait();
-                        break;
-                    default:
-                        pair.Key.Session
-                            .SendAsync(new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0))
-                            .Wait();
-                        break;
+                    pair.Key.Session
+                        .SendAsync(new SKillPlayerEXT(Index, (int)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0))
+                        .Wait();
+                }
+                else
+                {
+                    pair.Key.Session
+                        .SendAsync(new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0))
+                        .Wait();
                 }
 
                 var usedMana = pair.Key.Character.MaxMana - pair.Key.Character.Mana;

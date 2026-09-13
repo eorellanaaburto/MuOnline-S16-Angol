@@ -1278,4 +1278,13 @@ namespace MU.Network.Game
     {
         [WZMember(0)] public byte Slot { get; set; }
     }
+
+    [WZContract]
+    public class CPetTrainerMix1 : IGameMessage
+    {
+        [WZMember(0)] public byte Type { get; set; }
+        [WZMember(1)] public byte ID { get; set; }
+        [WZMember(2)] public byte Material { get; set; }
+        [WZMember(3, 75)] public byte[] Materials { get; set; }
+    }
 }

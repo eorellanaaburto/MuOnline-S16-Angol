@@ -10,23 +10,27 @@ namespace MU.Network.MuunSystem
     [WZContract]
     public class SMuunRideVP : IGameMessage
     {
-        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] public MuunRideVPDto[] ViewPort { get; set; }
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] 
+        public MuunRideVPDto[] ViewPort { get; set; }
     }
 
     [WZContract]
     public class MuunRideVPDto
     {
-        [WZMember(0)] public ushort wzNumber { get; set; }
-        [WZMember(1)] public ushort wzMuunRideItem { get; set; }
+        [WZMember(0)] public ushortle wzNumber { get; set; }
+        [WZMember(1)] public ushortle wzMuunRideItem { get; set; }
+        [WZMember(2)] public byte data { get; set; }
+        [WZMember(3)] public byte junk { get; set; }
 
         public MuunRideVPDto()
         {
 
         }
-        public MuunRideVPDto(ushort Number, ushort MuunItem)
+        public MuunRideVPDto(ushortle Number, ushortle MuunItem, byte opt)
         {
-            wzNumber = Number.ShufleEnding();
-            wzMuunRideItem = MuunItem.ShufleEnding();
+            wzNumber = Number;
+            wzMuunRideItem = MuunItem;
+            data = opt;
         }
     }
 

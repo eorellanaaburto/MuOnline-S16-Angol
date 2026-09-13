@@ -157,12 +157,17 @@ namespace MuEmu.Network.Data
         [WZMember(12)] public ushortle MuunSubItem { get; set; }
         [WZMember(13)] public byte fill2 { get; set; }
         [WZMember(14)] public ushortle MuunRideItem { get; set; }
-        [WZMember(15)] public byte DarkSpirit { get; set; }
-        [WZMember(16)] public ushortle Level { get; set; }
-        [WZMember(17)] public uint wzMaxLife { get; set; }
-        [WZMember(18)] public uint wzCurLife { get; set; }
-        [WZMember(19)] public ushort ServerCodeOfHomeWorld { get; set; }
-        [WZMember(20, SerializerType = typeof(ArrayWithScalarSerializer<ushort>))] public SkillStates[] ViewSkillState { get; set; }
+        [WZMember(15)] public byte fill3 { get; set; }
+        [WZMember(16)] public byte DisplayMuun { get; set; }
+        [WZMember(17)] public ushortle Mount { get; set; }
+        [WZMember(18)] public byte DarkSpirit { get; set; }
+        [WZMember(19)] public ushortle Level { get; set; }
+        [WZMember(20)] public uint wzMaxLife { get; set; }
+        [WZMember(21)] public uint wzCurLife { get; set; }
+        [WZMember(22)] public byte unk61 { get; set; }
+        [WZMember(23)] public ushort ServerCodeOfHomeWorld { get; set; }
+        [WZMember(24)] public byte unk64 { get; set; }
+        [WZMember(25, SerializerType = typeof(ArrayWithScalarSerializer<ushort>))] public SkillStates[] ViewSkillState { get; set; }
 
         public VPCreateS12Dto()
         {

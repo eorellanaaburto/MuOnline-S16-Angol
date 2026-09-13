@@ -1800,7 +1800,7 @@
   <Normal Type="75" Map="Icarus" Radio="30" PosX="27" PosY="220" Dir="-1">//Alpha Crust</Normal>
   <Normal Type="75" Map="Icarus" Radio="30" PosX="43" PosY="238" Dir="-1">//Alpha Crust</Normal>
   <Normal Type="75" Map="Icarus" Radio="30" PosX="25" PosY="231" Dir="-1">//Alpha Crust</Normal>
-  <Normal Type="76" Map="Icarus" Radio="30" PosX="48" PosY="228" Dir="-1">//Dark Phoenix Shield</Normal>
+  <Normal Type="77" Map="Icarus" Radio="30" PosX="48" PosY="228" Dir="-1">//Dark Phoenix</Normal>
   <Normal Type="144" Map="Kalima1" Radio="30" PosX="112" PosY="37" Dir="-1">//Death Angel </Normal>
   <Normal Type="144" Map="Kalima1" Radio="30" PosX="113" PosY="55" Dir="-1">//Death Angel </Normal>
   <Normal Type="144" Map="Kalima1" Radio="30" PosX="113" PosY="49" Dir="-1">//Death Angel </Normal>

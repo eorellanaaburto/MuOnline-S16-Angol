@@ -488,6 +488,9 @@ namespace MU.Network.Game
             Register<SMiniMapNPC>(GameOpCode.MiniMapNPC);
             Register<SPentagramaJewelInfo>(GameOpCode.PentagramaJInfo);
 
+            Register<CPetTrainerMix1>(GameOpCode.PetTrainerMix1);
+            Register<SPetTrainerMix1>(GameOpCode.PetTrainerMix1);
+
             VersionSelector.Register<SGremoryCaseDelete>(ServerSeason.Season6Kor, GameOpCode.GremoryCaseDelete);
             VersionSelector.Register<SGremoryCaseDeleteS16>(ServerSeason.Season16Kor, GameOpCode.GremoryCaseDelete);
             VersionSelector.Register<SSkillKey>(ServerSeason.Season6Kor, GameOpCode.SkillKey);

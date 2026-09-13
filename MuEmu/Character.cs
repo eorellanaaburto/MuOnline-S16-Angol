@@ -1,14 +1,19 @@
 ﻿using MU.DataBase;
+using MU.Network;
+using MU.Network.Auth;
+using MU.Network.Game;
+using MU.Network.MuunSystem;
+using MU.Network.PCPShop;
+using MU.Resources;
 using MuEmu.Data;
 using MuEmu.Entity;
 using MuEmu.Monsters;
 using MuEmu.Network;
-using MU.Network.Auth;
-using MU.Network.Game;
-using MU.Network.PCPShop;
+using MuEmu.Network.GameServices;
 using MuEmu.Resources;
 using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
+using MuEmu.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,10 +22,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WebZen.Util;
-using MU.Resources;
-using MU.Network;
-using MuEmu.Network.GameServices;
-using MuEmu.Util;
 
 namespace MuEmu
 {
@@ -711,7 +712,7 @@ namespace MuEmu
         public ushort AttackRatePvM => (ushort)(_attackRatePvM + Spells.PvMAttackSuccessRate);
         public ushort AttackRatePvP => (ushort)_attackRatePvP;
 
-        public ushort Defense => (ushort)((_defense + Spells.BuffList.Sum(x => x.DefenseAdd) + Spells.IncreaseDefense) * Spells.BuffList.Sum(x => x.DefenseAddRate));
+        public ushort Defense => (ushort)((_defense + Spells.BuffList.Sum(x => x.DefenseAdd) + Spells.IncreaseDefense) * (1.0f + Spells.BuffList.Sum(x => x.DefenseAddRate)));
         public ushort DefenseRatePvM => (ushort)(_defenseRatePvM);
         public ushort DefenseRatePvP => (ushort)(_defenseRatePvP + Spells.PvPDefenceSuccessRate);
 
@@ -736,6 +737,18 @@ namespace MuEmu
                     {
                         _mounts.Add(it);
                         it.Harmony.Option = 1;
+                        var mount = new SMuunRideVP
+                        {
+                            ViewPort = new MuunRideVPDto[]
+                            {
+                                new MuunRideVPDto(
+                                    new ushortle((ushort)Player.Session.ID),
+                                    new ushortle(it.Number.Number),
+                                    0)
+                            }
+                        };
+                        Player.Session.SendAsync(mount).Wait();
+                        Player.SendV2Message(mount);
                     }
                     else
                         break;
@@ -743,6 +756,18 @@ namespace MuEmu
                 case UseItemFlag.Remove:
                     _mounts.Remove(it);
                     it.Harmony.Option = 0;
+                    var unmount = new SMuunRideVP
+                    {
+                        ViewPort = new MuunRideVPDto[]
+                        {
+                                new MuunRideVPDto(
+                                    new ushortle((ushort)Player.Session.ID),
+                                    new ushortle(0xffff),
+                                    0)
+                        }
+                    };
+                    Player.Session.SendAsync(unmount).Wait();
+                    Player.SendV2Message(unmount);
                     return flag;
             }
             return UseItemFlag.Remove;
@@ -751,6 +776,7 @@ namespace MuEmu
 
         public List<SelfDefense> SelfDefense { get; set; } = new List<SelfDefense>();
         public bool HaveMount => _mounts.Any();
+        public Item Mount => _mounts.FirstOrDefault();
 
         public bool Transformation { get; internal set; }
         public ushort Skin { get; internal set; } = 0xffff;
@@ -1052,10 +1078,10 @@ namespace MuEmu
             {
                 Level = Level,
                 LevelUpPoints = LevelUpPoints,
-                MaxLife = (ushort)MaxHealth,
-                MaxMana = (ushort)MaxMana,
-                MaxShield = (ushort)MaxShield,
-                MaxBP = (ushort)MaxStamina,
+                MaxLife = (ushort)Util.Util.flatStat(MaxHealth),
+                MaxMana = (ushort)Util.Util.flatStat(MaxMana),
+                MaxShield = (ushort)Util.Util.flatStat(MaxShield),
+                MaxBP = (ushort)Util.Util.flatStat(MaxStamina),
                 AddPoint = (ushort)AddPoints,
                 MaxAddPoint = (ushort)MaxAddPoints,
                 MinusPoint = (ushort)MinusPoints,

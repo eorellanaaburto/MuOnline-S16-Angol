@@ -482,10 +482,10 @@ namespace MuEmu
             obj.Set("CurLife", (uint)x.Health);
             obj.Set("MaxLife", (uint)x.MaxHealth);
             obj.Set("Level", new ushortle(x.Level));
-            obj.Set("MuunItem", new ushortle(0xffff));
-            obj.Set("MuunRideItem", new ushortle(x.Inventory.GetMuun(0)?.Number.Number??0xffff));
-            obj.Set("MuunSubItem", new ushortle(x.Inventory.GetMuun(1)?.Number.Number??0xffff));
-            obj.Set("Mount", new ushortle(0xffff));
+            obj.Set("MuunItem", new ushortle(x.Inventory.GetMuun(0)?.Number.Number ?? 0xffff));
+            obj.Set("MuunRideItem", new ushortle(x.Inventory.GetMuun(1)?.Number.Number??0xffff));
+            obj.Set("MuunSubItem", new ushortle(x.Inventory.GetMuun(2)?.Number.Number??0xffff));
+            obj.Set("Mount", new ushortle(x.Mount?.Number.Number??0xffff));
             obj.Set("ServerCodeOfHomeWorld", (ushort)0);
         }
 
@@ -775,11 +775,6 @@ namespace MuEmu
                                     }
                                     break;
                             }
-                    }
-
-                    foreach(var Character in map.Players)
-                    {
-                        Character?.MuHelper.Update();
                     }
 
                     kalimaGateDisposed.ForEach(x => x.DisposeKalimaGate());

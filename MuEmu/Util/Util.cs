@@ -13,7 +13,8 @@ namespace MuEmu.Util
             statFraction /= short.MaxValue;
             statFraction *= 1000;
             var counter = (ushort)(stat / short.MaxValue);
-            return (ushort)(counter * 1000 + statFraction);
+
+            return (ushort)(counter * 1000 + Math.Ceiling(statFraction));
         }
     }
 }

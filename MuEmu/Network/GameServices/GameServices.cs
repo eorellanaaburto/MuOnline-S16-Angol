@@ -147,8 +147,9 @@ namespace MuEmu.Network.GameServices
             @char.Position = Cpos;
 
             var msg = new SMove((ushort)session.ID, (byte)Cpos.X, (byte)Cpos.Y, ld);
+            await session.SendAsync(msg);
             session.Player.SendV2Message(msg);
-            session.Player.Character.TPosition = Cpos;
+            @char.TPosition = Cpos;
         }
 
         [MessageHandler(typeof(CMoveEng))]
@@ -324,84 +325,44 @@ namespace MuEmu.Network.GameServices
                 Result = (byte)(0x10 | (byte)message.Type),
             };
 
-            if (@char.LevelUpPoints == 0)
-            {
-                msg.Result = 0;
-                await session.SendAsync(msg);
-                return;
-            }
+            if (@char.LevelUpPoints <= 0) goto refuse;
 
             switch (message.Type)
             {
                 case PointAdd.Strength:
-                    if (@char.Strength + 1 <= short.MaxValue)
-                    {
-                        @char.LevelUpPoints--;
-                        @char.Strength++;
-                        msg.MaxStamina = (ushort)@char.MaxStamina;
-                        msg.MaxShield = (ushort)@char.MaxShield;
-                    } else
-                    {
-                        msg.Result = 0;
-                    }
+                    if (@char.Strength + 1 > short.MaxValue) goto refuse;
+                    @char.Strength++;
                     break;
                 case PointAdd.Agility:
-                    if (@char.Agility + 1 <= short.MaxValue)
-                    {
-                        @char.LevelUpPoints--;
-                        @char.Agility++;
-                        msg.MaxStamina = (ushort)@char.MaxStamina;
-                        msg.MaxShield = (ushort)@char.MaxShield;
-                    }
-                    else
-                    {
-                        msg.Result = 0;
-                    }
+                    if (@char.Agility + 1 > short.MaxValue) goto refuse;
+                    @char.Agility++;
                     break;
                 case PointAdd.Vitality:
-                    if (@char.Vitality + 1 <= short.MaxValue)
-                    {
-                        @char.LevelUpPoints--;
-                        @char.Vitality++;
-                        msg.MaxLifeAndMana = (ushort)@char.MaxHealth;
-                        msg.MaxStamina = (ushort)@char.MaxStamina;
-                        msg.MaxShield = (ushort)@char.MaxShield;
-                    }
-                    else
-                    {
-                        msg.Result = 0;
-                    }
+                    if (@char.Vitality + 1 > short.MaxValue) goto refuse;
+                    msg.MaxLifeAndMana = (ushort)Util.Util.flatStat(@char.MaxHealth);
+                    @char.Vitality++;
                     break;
                 case PointAdd.Energy:
-                    if (@char.Energy + 1 <= short.MaxValue)
-                    {
-                        @char.LevelUpPoints--;
-                        @char.Energy++;
-                        msg.MaxLifeAndMana = (ushort)@char.MaxMana;
-                        msg.MaxStamina = (ushort)@char.MaxStamina;
-                        msg.MaxShield = (ushort)@char.MaxShield;
-                    }
-                    else
-                    {
-                        msg.Result = 0;
-                    }
+                    if (@char.Energy + 1 > short.MaxValue) goto refuse;
+                    @char.Energy++;
+                    msg.MaxLifeAndMana = (ushort)Util.Util.flatStat(@char.MaxMana);
                     break;
                 case PointAdd.Command:
-                    if (@char.Command + 1 <= short.MaxValue)
-                    {
-                        @char.LevelUpPoints--;
-                        @char.Command++;
-                        msg.MaxStamina = (ushort)@char.MaxStamina;
-                        msg.MaxShield = (ushort)@char.MaxShield;
-                    }
-                    else
-                    {
-                        msg.Result = 0;
-                    }
+                    if (@char.Command + 1 <= short.MaxValue) goto refuse;
+                    @char.Command++;
                     break;
             }
+            @char.LevelUpPoints--;
+            msg.MaxStamina = (ushort)Util.Util.flatStat(@char.MaxStamina);
+            msg.MaxShield = (ushort)Util.Util.flatStat(@char.MaxShield);
 
             await session.SendAsync(msg);
+            return;
+
+        refuse:
+            msg.Result = 0;
+            await session.SendAsync(msg);
+
         }
 
         // lacting
@@ -626,11 +587,14 @@ namespace MuEmu.Network.GameServices
                     break;
                 case 14 * 512 + 14: //  Jewel of Soul
                     {
+                        var source = inv.Get(message.Source);
                         var Target = inv.Get(message.Dest);
                         if (Target.Plus >= 9)
                             break;
 
-                        await inv.Delete(message.Source);
+                        if (source.Durability <= 1) await inv.Delete(message.Source);
+                        else source.Durability--;
+
                         var soulRate = 50 + (Target.Luck ? 25 : 0);
                         if (Program.RandomProvider(100) < soulRate)
                         {
@@ -647,6 +611,7 @@ namespace MuEmu.Network.GameServices
                     break;
                 case 14 * 512 + 16: // Jewel of Life
                     {
+                        var source = inv.Get(message.Source);
                         var Target = inv.Get(message.Dest);
                         if (Target.Option28 >= 3)
                             break;
@@ -654,7 +619,8 @@ namespace MuEmu.Network.GameServices
                         if (!Target.BasicInfo.Option)
                             break;
 
-                        await inv.Delete(message.Source);
+                        if (source.Durability <= 1) await inv.Delete(message.Source);
+                        else source.Durability--;
                         var lifeRate = 50 + (Target.Luck ? 25 : 0);
                         if (Program.RandomProvider(100) < lifeRate)
                         {
@@ -669,10 +635,13 @@ namespace MuEmu.Network.GameServices
                     break;
                 case 7210:// Jewel of Harmony
                     {
+                        var source = inv.Get(message.Source);
                         var Target = inv.Get(message.Dest);
                         if (Target.Harmony.Option != 0)
                             break;
 
+                        if (source.Durability <= 1) await inv.Delete(message.Source);
+                        else source.Durability--;
                         var joh = ResourceCache.Instance.GetJOH();
 
                         Target.Harmony = new JewelOfHarmony();
@@ -1073,6 +1042,7 @@ namespace MuEmu.Network.GameServices
                 }
 
                 var item = npc.Shop.Storage.Items[message.Position].Clone() as Item;
+                if (item.Durability == 0) item.Durability = 1;
                 
                 bResult.ItemInfo = item.GetBytes();
 
@@ -1903,11 +1873,13 @@ namespace MuEmu.Network.GameServices
         }
 
         [MessageHandler(typeof(CShadowBuff))]
-        public void CShadowBuff(GSSession session)
+        public async Task CShadowBuff(GSSession session)
         {
             var @char = session.Player.Character;
             if(Program.Experience.GoldChannel <= 0 && @char.Level <= 220)
                 @char.Spells.SetBuff(SkillStates.ShadowPhantom, TimeSpan.FromMinutes(60));
+            else
+                await session.SendAsync(new SNotice(NoticeType.Blue, "Shadow Phantom is only available in Normal Channel and for characters below level 220"));
         }
 
         [MessageHandler(typeof(CGremoryCaseOpen))]
@@ -2187,7 +2159,7 @@ namespace MuEmu.Network.GameServices
         }
 
         [MessageHandler(typeof(CInventoryEquipament))]
-        public void CInventoryEquipament(GSSession session, CInventoryEquipament message)
+        public async Task CInventoryEquipament(GSSession session, CInventoryEquipament message)
         {
             var item = session.Player.Character.Inventory.Get(message.ItemPos);
             if(item.IsMount)
@@ -2203,8 +2175,8 @@ namespace MuEmu.Network.GameServices
             itemBytes[1] = (byte)(message.ItemPos << 4);
             itemBytes[1] |= item.SmallPlus;
 
-            _ = session.SendAsync(message);
-            _ = session.SendAsync(new SEquipamentChange
+            await session.SendAsync(message);
+            await session.SendAsync(new SEquipamentChange
             {
                 Element = session.Player.Character.Inventory.Get(Equipament.Pentagrama)?.PentagramaMainAttribute??Element.None,
                 ItemInfo = itemBytes,
@@ -2742,6 +2714,98 @@ namespace MuEmu.Network.GameServices
 
             @char.Ruud -= (uint)it.BasicInfo.Ruud;
             await session.SendAsync(new SBuy { Result = result, ItemInfo = it.GetBytes() });
+        }
+
+        [MessageHandler(typeof(CPetTrainerMix1))]
+        public async Task CPetTrainerMix1(GSSession session, CPetTrainerMix1 message)
+        {
+            var inv = session.Player.Character.Inventory;
+            var mainItem = inv.Get(message.Material);
+            var materials = message.Materials.Where(x => x != 255).Select(x => inv.Get(x)).ToList();
+
+            Dictionary<ushort, byte> recipe;
+            Item reward;
+            uint zen = 0;
+
+            switch (mainItem.Number.Number)
+            {
+                case 6687:
+                    if(mainItem.Plus == 0)
+                    {
+                        recipe = new Dictionary<ushort, byte>
+                        {
+                            { 6159, 1 },
+                            { 7181, 5 },
+                            { 7182, 5 },
+                            { 7190, 1 },
+                        };
+
+                        reward = new Item(6660);
+                        zen = 2000000;
+                    }
+                    else
+                    {
+                        recipe = new Dictionary<ushort, byte>
+                        {
+                            { 6159, 1 },
+                            { 7181, 2 },
+                            { 7182, 2 },
+                            { 7190, 1 },
+                        };
+
+                        reward = new Item(6661);
+                        zen = 1000000;
+                    }
+                    break;
+                default:
+                    return;
+            }
+
+            var recipeNotok = recipe.Any(x => materials.Where(y => y.Number.Number == x.Key).Sum(x => x.Durability) < x.Value);
+            if (recipeNotok || session.Player.Character.Money < zen)
+            {
+                await session.SendAsync(new SPetTrainerMix1
+                {
+                    Result = 2,
+                    Type = message.Type,
+                });
+                return;
+            }
+
+            session.Player.Character.Money -= zen;
+            var mixResult = Program.RandomProvider(100) < 50;
+
+            inv.Delete(mainItem);
+            foreach (var item in recipe)
+            {
+                var material = materials.Where(x => x.Number.Number == item.Key).ToList();
+                var count = item.Value;
+                while (count > 0)
+                {
+                    var it = material.FirstOrDefault(x => x.Durability > 0);
+                    if (it.Durability <= count)
+                    {
+                        count -= it.Durability;
+                        material.Remove(it);
+                        await inv.Delete(it);
+                    }
+                    else
+                    {
+                        it.Durability -= count;
+                        count = 0;
+                    }
+                }
+            }
+
+            if (mixResult) inv.Add(reward);
+
+            await session.SendAsync(new SPetTrainerMix1
+            {
+                Result = (byte)(mixResult ? 0 : 1),
+                Type = message.Type,
+            });
+
+            inv.SendInventory();
         }
     }
 }
