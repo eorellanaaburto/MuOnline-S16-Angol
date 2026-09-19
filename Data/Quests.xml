@@ -70,23 +70,23 @@
   
   <Quest Type="0" Index="4" SubType="2" NPC="406" Name="Certificate of Strength!">
     <Detail Classes="SoulMaster,HighElf,BlodySummoner,RuneSpellMaster">
-      <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-63" Drop="300" />
-      <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-309" Drop="400" />
-      <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-77" Drop="500" />
+      <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63" Drop="300" />
+      <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309" Drop="400" />
+      <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77" Drop="500" />
       <Reward Type="Statup" SubType="10" />
       <Message LinkConditionIndex="1" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
     </Detail>
     <Detail Classes="BladeKnight">
-      <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-63" Drop="300" />
-      <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-309" Drop="400" />
-      <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-77" Drop="500" />
+      <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63" Drop="300" />
+      <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309" Drop="400" />
+      <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77" Drop="500" />
       <Reward Type="Statup" SubType="10" />
       <Message LinkConditionIndex="2" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
     </Detail>
-    <Detail Classes="BladeKnight">
-      <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-63" Drop="300" />
-      <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-309" Drop="400" />
-      <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-77" Drop="500" />
+    <Detail Classes="DarkLord">
+      <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63" Drop="300" />
+      <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309" Drop="400" />
+      <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77" Drop="500" />
       <Reward Type="Statup" SubType="10" />
       <Message LinkConditionIndex="0" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
     </Detail>
@@ -97,10 +97,10 @@
   </Quest>
   
   <Quest Type="0" Index="5" SubType="2" NPC="406" Name="Infiltration Of 'Barrack'">
-    <Detail Classes="BladeKnight,SoulMaster,HighElf,BlodySummoner,RuneSpellMaster">
-      <NeededMonster Type="409" Count="10" />
-      <NeededMonster Type="410" Count="10" />
-      <NeededMonster Type="411" Count="10" />
+    <Detail Classes="BladeKnight,SoulMaster,HighElf,DarkLord,BlodySummoner,RuneSpellMaster">
+      <NeededMonster Type="409" Count="20" />
+      <NeededMonster Type="410" Count="20" />
+      <NeededMonster Type="411" Count="20" />
       <Reward Type="Statup" SubType="20" />
       <Message LinkConditionIndex="1" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
     </Detail>
@@ -110,7 +110,7 @@
   </Quest>
   
   <Quest Type="0" Index="6" SubType="2" NPC="406" Name="Infiltration Of 'Refuge'">
-    <Detail Classes="BladeKnight,SoulMaster,HighElf,BlodySummoner,RuneSpellMaster">
+    <Detail Classes="BladeKnight,SoulMaster,HighElf,DarkLord,BlodySummoner,RuneSpellMaster">
       <NeededMonster Type="412" Count="1" />
       <Reward Type="Master" SubType="200" />
       <Message LinkConditionIndex="0" BeforeReg="168" AfterReg="172" CompleteQuest="173" ClearQuest="174" />

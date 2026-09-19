@@ -340,6 +340,19 @@ namespace MU.Network.Game
     }
 
     [WZContract]
+    public class CMagicAttackS6Eng : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzMagicNumber { get; set; }
+
+        [WZMember(1)]
+        public ushort wzTarget { get; set; }
+
+        public ushort Target { get => wzTarget.ShufleEnding(); set => wzTarget = value.ShufleEnding(); }
+        public Spell MagicNumber { get => (Spell)wzMagicNumber.ShufleEnding(); set => wzMagicNumber = ((ushort)value).ShufleEnding(); }
+    }
+
+    [WZContract]
     public class CMagicAttackS9 : IGameMessage
     {
         [WZMember(0)]

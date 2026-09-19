@@ -28,6 +28,7 @@ namespace MU.Network.QuestSystem
             Register<CCentTestStart>(QuestOpCode.CentQuestTest);
             Register<CCentBattleStart>(QuestOpCode.CentQuestSummon);
             Register<CCentMove>(QuestOpCode.CentQuestMove);
+            Register<CWerewolfMove>(QuestOpCode.WerewolfQuest);
 
             // S2C
             if(Season == ServerSeason.Season17Kor75) Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, false);

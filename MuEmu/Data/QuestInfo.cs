@@ -28,19 +28,23 @@ namespace MuEmu.Data
         }
     }
 
-    public class SubQuest
+    public class SubQuestMonster
     {
-        public int Index { get; set; }
-        public HeroClass[] Allowed { get; set; }
-        public List<Item> Requeriment { get; set; }
         public ushort Monster { get; set; }
         public ushort MonsterMin { get; set; }
         public ushort MonsterMax { get; set; }
         public int Count { get; set; }
+        public Item ItemDrop { get; set; }
+        public ushort Drop { get; set; }
+    }
+    public class SubQuest
+    {
+        public int Index { get; set; }
+        public HeroClass[] Allowed { get; set; }
         public Dictionary<QuestState, ushort> Messages { get; set; }
         public QuestCompensation CompensationType { get; set; }
         public byte Amount { get; set; }
-        public ushort Drop { get; set; }
+        public List<SubQuestMonster> Monsters { get; set; }
     }
 
     public class RunConditions

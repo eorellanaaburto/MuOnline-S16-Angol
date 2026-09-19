@@ -393,54 +393,40 @@ namespace MuEmu
             {
                 foreach(var sq in q.Details.Sub.Where(x => x.Allowed.Contains(Player.Character.Class)))
                 {
-
-                    if(sq.Monster != 0 && sq.Drop == 0)
+                    var infoMonsters = sq.Monsters.Where(x => x.Monster == monster.Info.Monster || x.MonsterMin <= monster.Level && x.MonsterMax >= monster.Level);
+                    foreach (var m in infoMonsters)
                     {
-                        if (sq.Monster != monster.Info.Monster)
-                            continue;
-
-                        var key = (sq.Monster | (uint)(q.Index << 16));
-                        var id = _questMonsterKillCount.FindIndex(x => x.Quest == q.Index && x.Monster == sq.Monster);
-                        var info = (id == -1) ? new QuestKCInfo { Monster = sq.Monster, Quest = (uint)q.Index } : _questMonsterKillCount[id];
-
-                        if(info.Count < sq.Count)
-                        info.Count++;
-
-                        if (id == -1)
+                        if(m.ItemDrop != null && m.Drop > Program.RandomProvider(100))
                         {
-                            id = _questMonsterKillCount.Count;
-                            _questMonsterKillCount.Add(info);
+                            var cantDrop = Player.Character.Inventory.FindAll(m.ItemDrop.Number).Count() == m.ItemDrop.Durability;
+                            if (!cantDrop)
+                                Player.Character.Map.AddItem(
+                                    monster.Position.X, 
+                                    monster.Position.Y, 
+                                    new Item(m.ItemDrop.Number, new { m.ItemDrop.Plus }));
                         }
-
-                        _questMonsterKillCount[id] = info;
-
-                        Player
-                            .Session
-                            .SendAsync(new SNotice(NoticeType.Blue, $"{monster.Info.Name}: {info.Count}/{sq.Count}"))
-                            .Wait();
-
-                        continue;
-                    }
-
-                    if (sq.MonsterMin > monster.Level ||
-                        sq.MonsterMax < monster.Level)
-                        continue;
-
-                    if(sq.Drop > _rand.Next(100))
-                    {
-                        Item dropItem = null;
-                        foreach(var it in sq.Requeriment)
+                        else
                         {
-                            var cantDrop = Player.Character.Inventory.FindAll(it.Number).Count() == it.Durability;
-                            if (cantDrop)
-                                continue;
+                            var key = (m.Monster | (uint)(q.Index << 16));
+                            var id = _questMonsterKillCount.FindIndex(x => x.Quest == q.Index && x.Monster == m.Monster);
+                            var info = (id == -1) ? new QuestKCInfo { Monster = m.Monster, Quest = (uint)q.Index } : _questMonsterKillCount[id];
 
-                            dropItem = new Item(it.Number, new { it.Plus });
-                            break;
+                            if (info.Count < m.Count)
+                                info.Count++;
+
+                            if (id == -1)
+                            {
+                                id = _questMonsterKillCount.Count;
+                                _questMonsterKillCount.Add(info);
+                            }
+
+                            _questMonsterKillCount[id] = info;
+
+                            Player
+                                .Session
+                                .SendAsync(new SNotice(NoticeType.Blue, $"{monster.Info.Name}: {info.Count}/{m.Count}"))
+                                .Wait();
                         }
-
-                        if(dropItem != null)
-                            Player.Character.Map.AddItem(monster.Position.X, monster.Position.Y, dropItem);
                     }
                 }
             }
@@ -708,28 +694,24 @@ namespace MuEmu
             var list = new List<Item>();
             var total = 0;
             var mobFinish = true;
-            foreach(var sq in Details.Sub.Where(x => x.Allowed.Contains(Character.Class)))
+            var itemFinish = true;
+            foreach (var sq in Details.Sub.Where(x => x.Allowed.Contains(Character.Class)))
             {
-                if (sq.Monster != 0)
+                foreach(var req in sq.Monsters)
                 {
-                    var kcInfo = Manager.GetKillCount(Index).FirstOrDefault(x => x.Monster == sq.Monster);
-                    mobFinish &= sq.Count <= kcInfo.Count;
-                }
-                else
-                {
-                    foreach (var req in sq.Requeriment)
+                    if(req.ItemDrop == null)
                     {
-                        var Items = (from it in inv.FindAllItems(req.Number)
-                                    where it.Plus == req.Plus
-                                    select it)
-                                    .Take(sq.Count);
-
-                        list.AddRange(Items);
-                        total += sq.Count;
+                        var kcInfo = Manager.GetKillCount(Index).FirstOrDefault(x => x.Monster == req.Monster);
+                        mobFinish &= req.Count <= kcInfo.Count;
+                    }else
+                    {
+                        var tmp = inv.FindAllItems(req.ItemDrop.Number.Number).Where(y => y.Plus == req.ItemDrop.Plus);
+                        itemFinish &= tmp.Count() >= req.Count;
+                        if(itemFinish) list.AddRange(tmp.Take(req.Count));
                     }
                 }
             }
-            var result = mobFinish && total == list.Count;
+            var result = mobFinish && itemFinish;
             if(result && clear)
             {
                 list.ForEach(x => _=inv.Delete((byte)x.SlotId));
@@ -862,10 +844,11 @@ namespace MuEmu
                     var SubQuests = masterQuest.Details.Sub.Where(x => x.Allowed.Contains(Master.Character.Class)).ToList();
                     foreach (var sub in SubQuests)
                     {
-                        for (var i = 0; i < sub.Count; i++)
+                        for (var i = 0; i < sub.Monsters.Count; i++)
                         {
-                            monsters.Add(MonstersMng.Instance.CreateMonster(
-                                sub.Monster,
+                            for(var j = 0; j < sub.Monsters[i].Count; j++)
+                                monsters.Add(MonstersMng.Instance.CreateMonster(
+                                sub.Monsters[i].Monster,
                                 ObjectType.Monster,
                                 Maps.NewQuest,
                                 new System.Drawing.Point(147, 29),

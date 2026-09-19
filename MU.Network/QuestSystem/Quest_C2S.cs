@@ -82,4 +82,8 @@ namespace MU.Network.QuestSystem
     [WZContract]
     public class CCentMove : IQuestMessage
     { }
+
+    [WZContract]
+    public class CWerewolfMove : IQuestMessage
+    { }
 }

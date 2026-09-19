@@ -31,8 +31,8 @@ namespace MU.Network.MuunSystem
     [WZContract]
     public class CMuunItemRideSelect : IGameMessage
     {
-        [WZMember(0)] public ushort wzNumber { get; set; }
-        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
+        [WZMember(0)] public ushort Number { get; set; }
+        //public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
     }
 
     [WZContract]

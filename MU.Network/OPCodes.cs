@@ -694,6 +694,7 @@ namespace MU.Network
         QuestSwitchListItem = 0x04F6,
         QuestMUTalk = 0x71F6,
         QuestMUAccept = 0x72F6,
+        WerewolfQuest = 0x07D0,
         CentQuestTest = 0x203E,
         CentQuestSummon = 0x213E,
         CentQuestMove = 0x223E,

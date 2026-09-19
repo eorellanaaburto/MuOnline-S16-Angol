@@ -398,6 +398,18 @@ namespace MU.Network.Game
     }
 
     [WZContract(LongMessage = true)]
+    public class SViewPortChangeS16 : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public VPChangeS16Dto[] ViewPort { get; set; }
+
+        public SViewPortChangeS16()
+        {
+            ViewPort = Array.Empty<VPChangeS16Dto>();
+        }
+    }
+
+    [WZContract(LongMessage = true)]
     public class SViewPortMonCreateS6Kor : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]

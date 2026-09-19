@@ -341,6 +341,10 @@ namespace MuEmu.Network.GameServices
             }
         }
 
+
+        [MessageHandler(typeof(CMagicAttackS6Eng))]
+        public void CMagicAttackS6Eng(GSSession session, CMagicAttackS6Eng message) => CMagicAttack(session, new CMagicAttack { MagicNumber = message.MagicNumber, Target = message.Target });
+
         [MessageHandler(typeof(CMagicAttackS9))]
         public void CMagicAttackS9(GSSession session, CMagicAttackS9 message) => CMagicAttack(session, new CMagicAttack { MagicNumber = message.MagicNumber, Target = message.Target });
 
@@ -457,6 +461,22 @@ namespace MuEmu.Network.GameServices
 
             switch (message.MagicNumber)
             {
+                case Spell.Earthshake:
+                    {
+                        var mvpcopy = @char.MonstersVP.Select(x => (MonstersMng
+                            .Instance
+                            .GetMonster(x)))
+                            .Where(x => (x?.Position.Substract(@char.Position).Length() ?? 100) < 10)
+                            .ToList();
+
+                        foreach (var mob in mvpcopy)
+                        {
+                            attack = @char.SkillAttack(magic, out type) - mob.Defense;
+                            var eDmg = await @char.PentagramAttack(mob);
+                            await mob.GetAttacked(@char.Player, attack, type, eDmg);
+                        }
+                    }
+                    break;
                 case Spell.DrainLife:
                     {
                         if (mom != null)

@@ -823,25 +823,39 @@ namespace MuEmu.Resources
                         Messages = new Dictionary<QuestState, ushort>(),
                         CompensationType = System.Enum.Parse<QuestCompensation>(sq.Reward.Type),
                         Amount = sq.Reward.SubType,
-                        Requeriment = new List<Item>()
+                        Monsters = new List<SubQuestMonster>()
                     };
                     if (sq.NeededItem != null)
                     {
                         foreach (var it in sq.NeededItem)
                         {
-                            stmp.Requeriment.Add(new Item(ItemNumber.FromTypeIndex((byte)it.Type, (ushort)it.Index), new { Plus = (byte)it.Level, Durability = (byte)it.Count }));
                             var mon = it.Monster.Split("-").Where(x => !string.IsNullOrEmpty(x)).Select(x => ushort.Parse(x));
-                            stmp.MonsterMin = mon.FirstOrDefault();
-                            stmp.MonsterMax = mon.LastOrDefault();
-                            stmp.Count = it.Count;
-                            stmp.Drop = (ushort)it.Drop;
+                            stmp.Monsters.Add(new SubQuestMonster
+                            {
+                                Monster = (ushort)(mon.Count() == 1?mon.FirstOrDefault():0),
+                                Count = it.Count,
+                                Drop = (ushort)it.Drop,
+                                ItemDrop = new Item(ItemNumber.FromTypeIndex((byte)it.Type, (ushort)it.Index), new { Plus = (byte)it.Level, Durability = (byte)it.Count }),
+                                MonsterMin = (ushort)(mon.Count() == 2 ? mon.FirstOrDefault() : 0),
+                                MonsterMax = (ushort)(mon.Count() == 2 ? mon.LastOrDefault() : 0),
+                            });
                         }
                     }
 
                     if (sq.NeededMonster != null)
                     {
-                        stmp.Monster = sq.NeededMonster.Type;
-                        stmp.Count = sq.NeededMonster.Count;
+                        foreach (var it in sq.NeededMonster)
+                        {
+                            stmp.Monsters.Add(new SubQuestMonster
+                            {
+                                Monster = it.Type,
+                                Count = it.Count,
+                                Drop = 0,
+                                ItemDrop = null,
+                                MonsterMin = 0,
+                                MonsterMax = 0,
+                            });
+                        }
                     }
 
                     stmp.Messages.Add(QuestState.Unreg, sq.Message.BeforeReg);

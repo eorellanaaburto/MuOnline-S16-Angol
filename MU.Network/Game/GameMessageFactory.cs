@@ -130,7 +130,6 @@ namespace MU.Network.Game
                     Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
                     break;
                 case ServerSeason.Season9Eng:// ENG
-                case ServerSeason.Season6Eng:
                     Register<CAttack>(GameOpCode.AttackEng);
                     Register<SAttackResult>(GameOpCode.AttackEng);
                     Register<CMagicAttackS9>(GameOpCode.MagicAttack);
@@ -140,6 +139,19 @@ namespace MU.Network.Game
                     Register<CBeattackS9>(GameOpCode.Position);
                     Register<SMagicAttackS9Eng>(GameOpCode.MagicAttack);
                     Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
+                    Register<CMoveEng>(GameOpCode.MoveEng);
+                    Register<SMove>(GameOpCode.MoveEng);
+                    break;
+                case ServerSeason.Season6Eng:
+                    Register<CAttack>(GameOpCode.AttackEng);
+                    Register<SAttackResult>(GameOpCode.AttackEng);
+                    Register<CMagicAttackS6Eng>(GameOpCode.MagicAttack);
+                    Register<CTeleport>(GameOpCode.Teleport);
+                    Register<CMagicDuration>(GameOpCode.MagicDuration);
+                    Register<CPositionSet>(GameOpCode.Position9Eng);
+                    Register<CBeattack>(GameOpCode.Position);
+                    Register<SMagicAttack>(GameOpCode.MagicAttack);
+                    Register<SMagicDuration>(GameOpCode.MagicDuration);
                     Register<CMoveEng>(GameOpCode.MoveEng);
                     Register<SMove>(GameOpCode.MoveEng);
                     break;
@@ -229,6 +241,7 @@ namespace MU.Network.Game
             Register<SViewPortChange>(GameOpCode.ViewPortChange);
             Register<SViewPortChangeS9>(GameOpCode.ViewPortChange);
             Register<SViewPortChangeS12>(GameOpCode.ViewPortChange);
+            Register<SViewPortChangeS16>(GameOpCode.ViewPortChange);
             Register<SViewPortMonCreateS6Kor>(GameOpCode.ViewPortMCreate);
             Register<SViewPortMonCreateS9Eng>(GameOpCode.ViewPortMCreate);
             Register<SViewPortMonCreateS12Eng>(GameOpCode.ViewPortMCreate);

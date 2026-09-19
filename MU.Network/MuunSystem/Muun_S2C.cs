@@ -7,7 +7,7 @@ using WebZen.Util;
 
 namespace MU.Network.MuunSystem
 {
-    [WZContract]
+    [WZContract(LongMessage = true)]
     public class SMuunRideVP : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] 

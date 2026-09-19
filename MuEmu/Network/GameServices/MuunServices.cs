@@ -14,7 +14,11 @@ namespace MuEmu.Network.GameServices
         [MessageHandler(typeof(CMuunItemRideSelect))]
         public async Task CMuunRideReq(GSSession session, CMuunItemRideSelect message)
         {
-            await session.SendAsync(new SMuunRideVP { ViewPort = new MuunRideVPDto[] { new MuunRideVPDto(session.Player.ID, 0xffff, 0) } });
+            await session.SendAsync(new SMuunRideVP { 
+                ViewPort = new MuunRideVPDto[] { 
+                    new MuunRideVPDto(session.Player.ID, message.Number, 0) 
+                } 
+            });
         }
 
         [MessageHandler(typeof(CMuunItemGet))]

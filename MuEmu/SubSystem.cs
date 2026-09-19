@@ -73,7 +73,7 @@ namespace MuEmu
 
             _typeBaseC = Program.Season switch
             {
-                ServerSeason.Season16Kor => typeof(VPChangeS12Dto),
+                ServerSeason.Season16Kor => typeof(VPChangeS16Dto),
                 ServerSeason.Season12Eng => typeof(VPChangeS12Dto),
                 ServerSeason.Season9Eng => typeof(VPChangeS9Dto),
                 _ => typeof(VPChangeDto),
@@ -396,6 +396,11 @@ namespace MuEmu
                 obj.Set("CurLife", (uint)x.Health);
                 obj.Set("Level", x.Level);
                 obj.Set("MaxLife", (uint)x.MaxHealth);
+                obj.Set("Mount", new ushortle(x.Mount?.Number.Number ?? 0xffff));
+                obj.Set("MuunItem", new ushortle(x.Inventory.GetMuun(0)?.Number.Number ?? 0xffff));
+                obj.Set("MuunRideItem", new ushortle(x.Inventory.GetMuun(1)?.Number.Number ?? 0xffff));
+                obj.Set("MuunSubItem", new ushortle(x.Inventory.GetMuun(2)?.Number.Number ?? 0xffff));
+                obj.Set("DisplayMuun", (byte)1);
                 obj.Name = x.Name;
                 obj.Number = x.Player.Session.ID;
                 obj.Position = x.Position;
@@ -445,6 +450,10 @@ namespace MuEmu
                 obj.Set("CurLife", (uint)x.Health);
                 obj.Set("Level", (ushortle)x.Level);
                 obj.Set("MaxLife", (uint)x.MaxHealth);
+                obj.Set("MuunItem", new ushortle(x.Inventory.GetMuun(0)?.Number.Number ?? 0xffff));
+                obj.Set("MuunRideItem", new ushortle(x.Inventory.GetMuun(1)?.Number.Number ?? 0xffff));
+                obj.Set("MuunSubItem", new ushortle(x.Inventory.GetMuun(2)?.Number.Number ?? 0xffff));
+                obj.Set("DisplayMuun", (byte)1);
                 obj.Name = x.Name;
                 obj.Number = x.Player.Session.ID;
                 obj.Position = x.Position;
@@ -487,6 +496,7 @@ namespace MuEmu
             obj.Set("MuunSubItem", new ushortle(x.Inventory.GetMuun(2)?.Number.Number??0xffff));
             obj.Set("Mount", new ushortle(x.Mount?.Number.Number??0xffff));
             obj.Set("ServerCodeOfHomeWorld", (ushort)0);
+            obj.Set("DisplayMuun", (byte)1);
         }
 
         private static async void PlayerMonsViewport(MapInfo Map, Character plr)

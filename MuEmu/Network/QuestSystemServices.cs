@@ -29,6 +29,12 @@ namespace MuEmu.Network
             await session.SendAsync(new SSetQuestState(message.Index, result, serverState));
         }
 
+        [MessageHandler(typeof(CWerewolfMove))]
+        public async Task CWerewolfMove(GSSession session)
+        {
+            await session.Player.Character.WarpTo(256);
+        }
+
         [MessageHandler(typeof(CQuestEXP))]
         public async Task CQuestEXP(GSSession session, CQuestEXP message)
         {
