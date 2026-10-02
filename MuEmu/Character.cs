@@ -1529,26 +1529,27 @@ namespace MuEmu
                 _needSave = false;
                 var charDto = db.Characters.First(x => x.CharacterId == Id);
                 charDto.Class = (byte)_class;
-                charDto.Level = _level;
-                charDto.LevelUpPoints = _levelUpPoints;
+                charDto.Level = Math.Min(_level, (ushort)short.MaxValue);
+                charDto.LevelUpPoints = Math.Min(_levelUpPoints, (ushort)short.MaxValue);
                 charDto.Map = (byte)_map;
                 charDto.X = (byte)_position.X;
                 charDto.Y = (byte)_position.Y;
                 charDto.Experience = (long)_exp;
-                // _hp/_hpMax/_mp/_mpMax are floats computed from stat totals (base + level/master-level
-                // bonuses + equipment bonuses) and can legitimately exceed ushort.MaxValue for very
-                // high-stat characters (many resets). An unchecked (ushort) cast on an out-of-range
-                // float is undefined behavior in .NET and was observed producing a corrupt/negative
-                // value that then crashed the MySQL save - clamp first so the cast is always safe.
-                charDto.Life = (ushort)Math.Clamp(_hp, 0, ushort.MaxValue);
-                charDto.MaxLife = (ushort)Math.Clamp(_hpMax, 0, ushort.MaxValue);
-                charDto.Mana = (ushort)Math.Clamp(_mp, 0, ushort.MaxValue);
-                charDto.MaxMana = (ushort)Math.Clamp(_mpMax, 0, ushort.MaxValue);
-                charDto.Str = _str;
-                charDto.Agility = _agi;
-                charDto.Vitality = _vit;
-                charDto.Energy = _ene;
-                charDto.Command = _cmd;
+                // This MySql.EntityFrameworkCore version round-trips every `ushort` column through a
+                // signed Int16 path on both read AND write (confirmed live for Str/Agility/Energy on
+                // read, and now for MaxMana on write - the same -220 kept recurring after clamping to
+                // ushort.MaxValue because the real ceiling for ANY ushort column here is 32767, not
+                // 65535). Ushort.MaxValue-RANGE_MAX is wrong for this codebase; ShortMax is correct.
+                const ushort StatMax = (ushort)short.MaxValue;
+                charDto.Life = (ushort)Math.Clamp(_hp, 0, StatMax);
+                charDto.MaxLife = (ushort)Math.Clamp(_hpMax, 0, StatMax);
+                charDto.Mana = (ushort)Math.Clamp(_mp, 0, StatMax);
+                charDto.MaxMana = (ushort)Math.Clamp(_mpMax, 0, StatMax);
+                charDto.Str = Math.Min(_str, StatMax);
+                charDto.Agility = Math.Min(_agi, StatMax);
+                charDto.Vitality = Math.Min(_vit, StatMax);
+                charDto.Energy = Math.Min(_ene, StatMax);
+                charDto.Command = Math.Min(_cmd, StatMax);
                 charDto.Money = _zen;
                 charDto.Ruud = _ruud;
                 charDto.CtlCode = (int)CtlCode;
@@ -2150,8 +2151,8 @@ namespace MuEmu
             {
                 if(res <= @char.LevelUpPoints)
                 {
-                    if (res + @char.StrengthTotal >= ushort.MaxValue)
-                        res = ushort.MaxValue - @char.StrengthTotal;
+                    if (res + @char.StrengthTotal >= short.MaxValue)
+                        res = short.MaxValue - @char.StrengthTotal;
 
                     @char.LevelUpPoints -= (ushort)res;
                     @char.Strength += (ushort)res;
@@ -2176,8 +2177,8 @@ namespace MuEmu
             {
                 if (res <= @char.LevelUpPoints)
                 {
-                    if (res + @char.AgilityTotal >= ushort.MaxValue)
-                        res = ushort.MaxValue - @char.AgilityTotal;
+                    if (res + @char.AgilityTotal >= short.MaxValue)
+                        res = short.MaxValue - @char.AgilityTotal;
 
                     @char.LevelUpPoints -= (ushort)res;
                     @char.Agility += (ushort)res;
@@ -2201,8 +2202,8 @@ namespace MuEmu
             {
                 if (res <= @char.LevelUpPoints)
                 {
-                    if (res + @char.VitalityTotal >= ushort.MaxValue)
-                        res = ushort.MaxValue - @char.VitalityTotal;
+                    if (res + @char.VitalityTotal >= short.MaxValue)
+                        res = short.MaxValue - @char.VitalityTotal;
 
                     @char.LevelUpPoints -= (ushort)res;
                     @char.Vitality += (ushort)res;
@@ -2227,8 +2228,8 @@ namespace MuEmu
             {
                 if (res <= @char.LevelUpPoints)
                 {
-                    if (res + @char.EnergyTotal >= ushort.MaxValue)
-                        res = ushort.MaxValue - @char.EnergyTotal;
+                    if (res + @char.EnergyTotal >= short.MaxValue)
+                        res = short.MaxValue - @char.EnergyTotal;
 
                     @char.LevelUpPoints -= (ushort)res;
                     @char.Energy += (ushort)res;
@@ -2253,8 +2254,8 @@ namespace MuEmu
             {
                 if (res <= @char.LevelUpPoints)
                 {
-                    if (res + @char.CommandTotal >= ushort.MaxValue)
-                        res = ushort.MaxValue - @char.CommandTotal;
+                    if (res + @char.CommandTotal >= short.MaxValue)
+                        res = short.MaxValue - @char.CommandTotal;
 
                     @char.LevelUpPoints -= (ushort)res;
                     @char.Command += (ushort)res;
