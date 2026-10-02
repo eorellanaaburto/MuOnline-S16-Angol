@@ -121,6 +121,13 @@ namespace MuEmu
 
             foreach (var skill in character.Spells)
             {
+                // A character's class-base skills (added above from Character.BaseInfo.Spells)
+                // can legitimately also exist as a SkillEntry row (e.g. imported from another
+                // server's DB, or just re-saved at some point) - don't crash on the duplicate,
+                // the base-granted entry already covers it.
+                if (_spellList.ContainsKey((Spell)skill.Magic))
+                    continue;
+
                 var spell = SpellMagicInfo.FromSpellInfo(Character.Class, spells[(Spell)skill.Magic], skill.Level);
                 _spellList.Add((Spell)skill.Magic, spell);
                 SetEffect(spell);
