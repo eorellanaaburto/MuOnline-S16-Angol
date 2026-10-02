@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ConnectServer>
+  <apiKey>2020110116</apiKey>
+  <IP>0.0.0.0</IP>
+  <IPChat>0.0.0.0</IPChat>
+  <DataBase>
+    <IP>127.0.0.1</IP>
+    <Name>MuOnline</Name>
+    <User>root</User>
+    <Password>CHANGE_ME_MYSQL_ROOT_PASSWORD</Password>
+  </DataBase>
+</ConnectServer>

@@ -1,0 +1,45 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mu-mysql
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: MuOnline
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    command: --bind-address=127.0.0.1
+
+  connectserver:
+    image: ghcr.io/eorellanaaburto/muonline-s16-connectserver:latest
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.connectserver
+    container_name: mu-connectserver
+    restart: unless-stopped
+    network_mode: host
+    stdin_open: true
+    depends_on:
+      - mysql
+    volumes:
+      - ./config/connectserver/configuration.xml:/app/configuration.xml
+    working_dir: /app
+    entrypoint: ["dotnet", "CSEmu.dll"]
+
+  gameserver:
+    image: ghcr.io/eorellanaaburto/muonline-s16-gameserver:latest
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.gameserver
+    container_name: mu-gameserver
+    restart: unless-stopped
+    network_mode: host
+    stdin_open: true
+    depends_on:
+      - mysql
+      - connectserver
+    volumes:
+      - ./config/gameserver/Server.xml:/app/Server.xml
+    working_dir: /app
+    entrypoint: ["dotnet", "MuEmu.dll"]

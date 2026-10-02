@@ -1,0 +1,19 @@
+FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
+WORKDIR /src
+COPY . .
+RUN dotnet publish MuEmu/MuEmu.csproj -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/runtime:3.1
+WORKDIR /app
+COPY --from=build /app/publish .
+COPY --from=build /src/Data ./Data
+# Upstream data files use Windows-style backslash path separators inside
+# attribute values (e.g. Bag="Moon Rabbit\BlueEvent.xml"), which breaks file
+# lookups on Linux. Normalize to forward slashes at image build time so this
+# self-heals across `git pull` + rebuild.
+RUN find ./Data -iname "*.xml" -exec sed -i 's@\\@/@g' {} +
+# Upstream ships MasterSkillTree_Season16kor.xml (lowercase "kor"), but the
+# code requests the exact enum casing "Season16Kor.xml" - only matters on
+# case-sensitive filesystems (Linux), not Windows.
+RUN cp Data/MasterLevel/MasterSkillTree_Season16kor.xml Data/MasterLevel/MasterSkillTree_Season16Kor.xml
+ENTRYPOINT ["dotnet", "MuEmu.dll"]

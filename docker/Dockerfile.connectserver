@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
+WORKDIR /src
+COPY . .
+RUN dotnet publish CSEmu/CSEmu.csproj -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/runtime:3.1
+WORKDIR /app
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "CSEmu.dll"]
