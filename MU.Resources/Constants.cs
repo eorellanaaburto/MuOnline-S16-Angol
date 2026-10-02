@@ -767,7 +767,8 @@ namespace MU.Resources
         Inventory = 12,// Size 64
         ExpandedInventory1 = 76, // Size 32
         ExpandedInventory2 = 108, // Size 32
-        UnkInventory = 140, // Size 64??????
+        ExpandedInventory3 = 140, // Size 32
+        ExpandedInventory4 = 172, // Size 32
         PersonalShop = 204, // Size 32
         ChaosBox=300,
         TradeBox,

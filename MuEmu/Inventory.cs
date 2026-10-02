@@ -39,6 +39,8 @@ namespace MuEmu
         private Storage _inventory;
         private Storage _exInventory1;
         private Storage _exInventory2;
+        private Storage _exInventory3;
+        private Storage _exInventory4;
         private Storage _chaosBox;
         private Storage _personalShop;
         private Storage _tradeBox;
@@ -165,6 +167,18 @@ namespace MuEmu
             {
                 _exInventory2 = new Storage(Storage.Expansion, StorageID.ExpandedInventory2);
                 Storages.Add(StorageID.ExpandedInventory2, _exInventory2);
+            }
+
+            if (characterDto.ExpandedInventory >= 3)
+            {
+                _exInventory3 = new Storage(Storage.Expansion, StorageID.ExpandedInventory3);
+                Storages.Add(StorageID.ExpandedInventory3, _exInventory3);
+            }
+
+            if (characterDto.ExpandedInventory >= 4)
+            {
+                _exInventory4 = new Storage(Storage.Expansion, StorageID.ExpandedInventory4);
+                Storages.Add(StorageID.ExpandedInventory4, _exInventory4);
             }
 
             foreach (var item in characterDto.Items.Where(x => x.VaultId != 10 && x.VaultId != (int)StorageID.Warehouse))
@@ -365,6 +379,10 @@ namespace MuEmu
                 res.AddRange(_exInventory1.Items.Values.Where(x => x.Number == num));
             if (_exInventory2 != null)
                 res.AddRange(_exInventory2.Items.Values.Where(x => x.Number == num));
+            if (_exInventory3 != null)
+                res.AddRange(_exInventory3.Items.Values.Where(x => x.Number == num));
+            if (_exInventory4 != null)
+                res.AddRange(_exInventory4.Items.Values.Where(x => x.Number == num));
 
             return res;
         }
@@ -376,7 +394,7 @@ namespace MuEmu
         public bool TryAdd(System.Drawing.Size sz = new System.Drawing.Size())
         {
             var freeSpace = sz.IsEmpty?new System.Drawing.Size(5, 3):sz;
-            return _inventory.TryAdd(freeSpace) | (_exInventory1?.TryAdd(freeSpace)??false) | (_exInventory2?.TryAdd(freeSpace) ?? false);
+            return _inventory.TryAdd(freeSpace) | (_exInventory1?.TryAdd(freeSpace)??false) | (_exInventory2?.TryAdd(freeSpace) ?? false) | (_exInventory3?.TryAdd(freeSpace) ?? false) | (_exInventory4?.TryAdd(freeSpace) ?? false);
         }
 
         /// <summary>
@@ -573,6 +591,8 @@ namespace MuEmu
             var anyI1 = _inventory.Items.Any(x => x.Value.Number == it.Number && x.Value.Durability < x.Value.BasicInfo.MaxStack);
             var anyI2 = _exInventory1?.Items.Any(x => x.Value.Number == it.Number && x.Value.Durability < x.Value.BasicInfo.MaxStack)??false;
             var anyI3 = _exInventory2?.Items.Any(x => x.Value.Number == it.Number && x.Value.Durability < x.Value.BasicInfo.MaxStack)??false;
+            var anyI4 = _exInventory3?.Items.Any(x => x.Value.Number == it.Number && x.Value.Durability < x.Value.BasicInfo.MaxStack)??false;
+            var anyI5 = _exInventory4?.Items.Any(x => x.Value.Number == it.Number && x.Value.Durability < x.Value.BasicInfo.MaxStack)??false;
 
             if(anyI1)
                 result = _inventory.Add(it);
@@ -580,6 +600,10 @@ namespace MuEmu
                 result = _exInventory1.Add(it);
             else if (anyI3)
                 result = _exInventory2.Add(it);
+            else if (anyI4)
+                result = _exInventory3.Add(it);
+            else if (anyI5)
+                result = _exInventory4.Add(it);
 
             if(result == 0xff)
                 result = _inventory.Add(it);
@@ -589,6 +613,12 @@ namespace MuEmu
 
             if (result == 0xff && _exInventory2 != null)
                 result = _exInventory2.Add(it);
+
+            if (result == 0xff && _exInventory3 != null)
+                result = _exInventory3.Add(it);
+
+            if (result == 0xff && _exInventory4 != null)
+                result = _exInventory4.Add(it);
 
             return result;
         }
@@ -698,9 +728,17 @@ namespace MuEmu
                     {
                         sFrom = _exInventory1;
                     }
-                    else
+                    else if (fromIndex < (int)StorageID.ExpandedInventory3)
                     {
                         sFrom = _exInventory2;
+                    }
+                    else if (fromIndex < (int)StorageID.ExpandedInventory4)
+                    {
+                        sFrom = _exInventory3;
+                    }
+                    else
+                    {
+                        sFrom = _exInventory4;
                     }
                     break;
                 case MoveItemFlags.Warehouse:
@@ -743,9 +781,17 @@ namespace MuEmu
                     {
                         sTo = _exInventory1;
                     }
-                    else
+                    else if (toIndex < (int)StorageID.ExpandedInventory3)
                     {
                         sTo = _exInventory2;
+                    }
+                    else if (toIndex < (int)StorageID.ExpandedInventory4)
+                    {
+                        sTo = _exInventory3;
+                    }
+                    else
+                    {
+                        sTo = _exInventory4;
                     }
                     break;
                 case MoveItemFlags.Warehouse:
@@ -947,6 +993,10 @@ namespace MuEmu
                 items.AddRange(_exInventory1.Items.Values);
             if (_exInventory2 != null)
                 items.AddRange(_exInventory2.Items.Values);
+            if (_exInventory3 != null)
+                items.AddRange(_exInventory3.Items.Values);
+            if (_exInventory4 != null)
+                items.AddRange(_exInventory4.Items.Values);
 
             return items;
         }
@@ -1052,6 +1102,8 @@ namespace MuEmu
             list.AddRange(_inventory.GetInventory());
             if (_exInventory1 != null) list.AddRange(_exInventory1.GetInventory());
             if (_exInventory2 != null) list.AddRange(_exInventory2?.GetInventory());
+            if (_exInventory3 != null) list.AddRange(_exInventory3?.GetInventory());
+            if (_exInventory4 != null) list.AddRange(_exInventory4?.GetInventory());
             list.AddRange(_personalShop.GetInventory());
 
             message.LoadItems(list.ToArray());
@@ -1061,6 +1113,8 @@ namespace MuEmu
             var packetList = _inventory.GetInventoryDuration().ToList();
             if (_exInventory1 != null) packetList.AddRange(_exInventory1.GetInventoryDuration());
             if (_exInventory2 != null) packetList.AddRange(_exInventory2.GetInventoryDuration());
+            if (_exInventory3 != null) packetList.AddRange(_exInventory3.GetInventoryDuration());
+            if (_exInventory4 != null) packetList.AddRange(_exInventory4.GetInventoryDuration());
             packetList.AddRange(_personalShop.GetInventoryDuration());
             if (packetList.Any()) await Task.WhenAll(packetList.Select(x => Character.Player.Session.SendAsync(x)).ToArray());
         }
