@@ -1535,10 +1535,15 @@ namespace MuEmu
                 charDto.X = (byte)_position.X;
                 charDto.Y = (byte)_position.Y;
                 charDto.Experience = (long)_exp;
-                charDto.Life = (ushort)_hp;
-                charDto.MaxLife = (ushort)_hpMax;
-                charDto.Mana = (ushort)_mp;
-                charDto.MaxMana = (ushort)_mpMax;
+                // _hp/_hpMax/_mp/_mpMax are floats computed from stat totals (base + level/master-level
+                // bonuses + equipment bonuses) and can legitimately exceed ushort.MaxValue for very
+                // high-stat characters (many resets). An unchecked (ushort) cast on an out-of-range
+                // float is undefined behavior in .NET and was observed producing a corrupt/negative
+                // value that then crashed the MySQL save - clamp first so the cast is always safe.
+                charDto.Life = (ushort)Math.Clamp(_hp, 0, ushort.MaxValue);
+                charDto.MaxLife = (ushort)Math.Clamp(_hpMax, 0, ushort.MaxValue);
+                charDto.Mana = (ushort)Math.Clamp(_mp, 0, ushort.MaxValue);
+                charDto.MaxMana = (ushort)Math.Clamp(_mpMax, 0, ushort.MaxValue);
                 charDto.Str = _str;
                 charDto.Agility = _agi;
                 charDto.Vitality = _vit;
