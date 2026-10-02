@@ -507,6 +507,12 @@ namespace MuEmu
         public void ConnectMember(Player plr)
         {
             var conMemb = Find(plr.Character.Name);
+            if (conMemb == null)
+            {
+                GuildManager.Logger.Error("GUILD: ConnectMember couldn't find '{0}' in guild '{1}' members - skipping guild connect", plr.Character.Name, Name);
+                return;
+            }
+
             conMemb.Player = plr;
             conMemb.ViewPort();
             conMemb.Server = (byte)Program.ServerCode;
@@ -515,11 +521,18 @@ namespace MuEmu
             GuildManager.GuildMatchingNotifications(plr.Character, conMemb.Rank);
             var notice = new SNotice(NoticeType.Guild, $"Welcome back {plr.Character.Name}");
 
-            ActiveMembers
+            // This runs inline from the (async) login/map-join handler. The previous
+            // `.Wait()` here blocked that thread waiting on SendAsync to complete, which
+            // deadlocked when SendAsync's continuation needed to resume on that same
+            // thread - the client would sit at "Welcome" for ~8-9s then time out and
+            // disconnect itself, with no exception ever logged server-side (confirmed
+            // live - this was the exact repro). Fire-and-forget instead: it's a
+            // best-effort notice to other online guildmates, not something the joining
+            // player's own login needs to block on.
+            _ = ActiveMembers
                 .Where(x => x.Player != null)
                 .Select(x => x.Player.Session)
-                .SendAsync(notice)
-                .Wait();
+                .SendAsync(notice);
         }
 
         public void Remove(Player plr)
